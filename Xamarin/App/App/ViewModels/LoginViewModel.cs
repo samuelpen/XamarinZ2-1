@@ -3,6 +3,8 @@
     using GalaSoft.MvvmLight.Command;
     using System;
     using System.Windows.Input;
+    using Services;
+    using Xamarin.Forms;
 
     public class LoginViewModel:BaseViewModel
     {
@@ -11,6 +13,7 @@
         string password;
         bool isrunning;
         bool isenabled;
+        ApiService apiService;
         #endregion
 
         #region Properties
@@ -75,22 +78,41 @@
             if (String.IsNullOrEmpty(Email))
             {
                 await App.Current.MainPage.DisplayAlert("Email empty", 
-                                "Please input email",
+                                "Please enter your email",
                                 "Accept");
                 return;
             }
             if (String.IsNullOrEmpty(Password))
             {
                 await App.Current.MainPage.DisplayAlert("Password empty",
-                                "Please entry password",
+                                "Please enter your password",
                                 "Accept");
                 return;
             }
 
             IsRunning = true;
+            IsEnabled = false;
+
+            var conexion = await this.apiService.CheckConnection();
+            if (!conexion.IsSuccess)
+            {
+                this.IsRunning = false;
+                this.IsEnabled = true;
+                await Application.Current.MainPage.DisplayAlert(
+                   "ERROR",
+                   conexion.Message,
+                   "Accept");
+                return;
+            }
+
 
 
         }
         #endregion
+
+        public LoginViewModel()
+        {
+
+        }
     }
 }
